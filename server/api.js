@@ -2,11 +2,13 @@
  * Created by romanl on 9/18/14.
  */
 
-var db = require('dbAccess');
+var db = require('./dbaccess');
 var async = require('async');
 
 
-function addUser(req, res, next){
+//Users
+
+function createUser(req, res, next){
     var userName = req.params.userName;
     db.createUser(userName, function(err, results) {
         if(err) {
@@ -36,14 +38,10 @@ function removeUser(req, res, next) {
 
 }
 
-function addBottles(req, res, next) {
-    var stationNumber = req.params.stationNumber,
-        numberOfBottles = req.params.numberOfBottles;
-
-}
 
 function getUsers(req, res, next) {
     var userName = req.params.userName;
+
     var userListCallback = function(err, results) {
         if(err) {
             console.log(err);
@@ -57,12 +55,114 @@ function getUsers(req, res, next) {
     };
 
     if(userName) {
-
-        db.getUserData(userName, userListCallback);
+        db.getUser(userName, userListCallback);
     } else {
-        db.getUsers(userListCallback);
+        db.listUsers(userListCallback);
     }
 
+}
+
+
+//Sessions
+
+function createSession(req, res, next) {
+    var sessionData = req.params.sessionData;
+
+    async.waterfall([
+        function(callback) {
+            db.createSession(sessionData, function(err, results) {
+                if(err) {
+                    console.log(err);
+                    callback(new Error('Error Creating Session: ' + err.toString()), null);
+
+                } else {
+                    console.log(results);
+                    callback(null);
+                }
+            });
+        },
+        function(callback) {
+
+            var stationNumber = sessionData.stationNumber;
+
+            db.findUser(stationNumber, function(err, results) {
+                if(err) {
+                    console.log(err);
+                    callback(new Error('Error finding user by station number: ' + err.toString()), null);
+                } else {
+                    callback(null, results);
+                }
+            });
+
+        },
+        function(userData, callback) {
+            userData.sessions.append(sessionData.sessionId);
+            userData.currentSessionNumber = 0;
+
+            db.updateUser(userData, function(err, results) {
+                if(err) {
+                    console.log(err);
+                    callback(new Error('Error updating user data with session details: ' + err.toString()), null);
+                } else {
+                    callback(null, results);
+                }
+            });
+        }
+    ], function(err, results) {
+        if(err) {
+            console.log(err);
+            next(new Error('Error with session creation process: ' + err.toString()));
+
+        } else {
+            console.log(results);
+            res.send(results);
+            next();
+        }
+    });
+
+}
+
+function listSessions(req, res, next) {
+
+
+}
+
+function getSessions(req, res, next) {
+    var userName = req.params.userName;
+
+    async.waterfall([
+        function(callback) {
+            db.getUser(userName, function(err, results) {
+                if(err) {
+                    console.log(err);
+                    callback(new Error('Error getting user details: ' + err.toString()), null);
+                } else {
+                    callback(null, results);
+                }
+            });
+        },
+        function(userData, callback) {
+            var sessions = userData.sessions;
+            db.getSessions(sessions, function(err, results) {
+                if(err) {
+                    console.log(err);
+                    callback(new Error('Error getting session details for user: ' + err.toString()), null);
+                } else {
+                    callback(null, results);
+                }
+            });
+        }
+    ], function(err, results) {
+        if(err) {
+            console.log(err);
+            next(new Error('Error with getting user sessions process: ' + err.toString()));
+
+        } else {
+            console.log(results);
+            res.send(results);
+            next();
+        }
+    });
 }
 
 
@@ -71,13 +171,15 @@ function getUsers(req, res, next) {
 
     //Users
     api.users = {};
-    api.users.addUser = addUser;
+    api.users.createUser = createUser;
     api.users.removeUser = removeUser;
     api.users.getUsers = getUsers;
 
     //Sessions
     api.sessions = {};
-    api.sessions.addBottles = addBottles;
+    api.sessions.createSession = createSession;
+    api.sessions.getSessions = getSessions;
+    api.sessions.listSessions = listSessions;
 
     module.exports = api;
 

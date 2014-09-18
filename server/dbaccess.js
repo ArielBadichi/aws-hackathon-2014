@@ -114,6 +114,7 @@ function getSessions(sessionIds) {
 }
 
 
+
 //createUser("pavel")
 
 //createSession("44","55","6","22:22", "22:55")
@@ -121,3 +122,13 @@ function getSessions(sessionIds) {
 listUsers(function(err, res){
     console.log(err, res);
 })
+
+(function(){
+    var dbaccess = {};
+
+    dbaccess.createUser = createUser;
+
+    module.exports = dbaccess;
+
+})();
+
