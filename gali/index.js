@@ -43,7 +43,7 @@ var readQR = function(buf, callback) {
             result = qrcode.decode(image);
             console.log('[+] - result of qr code: ' + result);
         } catch (e) {
-            console.log('[-] - unable to read qr code');
+            //console.log('[-] - unable to read qr code');
         }
     };
 
