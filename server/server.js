@@ -18,8 +18,9 @@ var server = restify.createServer(
     }
 );
 server.get('/users/:userName', usersApi.getUsers);
-server.post('/users/:userName', usersApi.addUser);
+server.post('/users/:userName', usersApi.createUser);
 
+server.get('/sessions/', sessionApi.listSessions);
 
 //TODO: Not sure if going to be implemented here
 //server.del('/users/:userName', api.addUser);
@@ -28,6 +29,7 @@ server.post('/users/:userName', usersApi.addUser);
 //server.put('/users/:userName', api.addUser);
 
 
+server.use(restify.queryParser());
 
 server.listen(8080, function() {
     console.log('%s listening at %s', server.name, server.url);

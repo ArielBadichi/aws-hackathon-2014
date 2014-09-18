@@ -78,3 +78,11 @@ function getSessions(sessionIds) {
 
         tableList();
 
+(function(){
+    var dbaccess = {};
+
+    dbaccess.createUser = createUser;
+
+    module.exports = dbaccess;
+
+})();
