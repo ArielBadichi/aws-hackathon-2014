@@ -8,18 +8,28 @@ var qrcode = require('jsqrcode')(Canvas);
 var async = require('async');
 
 cam.configSet({width: 352, height: 288});
-cam.start();
+
+var times = function (n, async, cont) {
+    for (var i = 0; i < n; i++) {
+        cont = (function (c) {
+            return function () {async(c);};
+        })(cont);
+    }
+    return cont();
+};
+
 
 var takePhoto = function(callback) {
     console.log("[c] - Capturing photo");
+    cam.start();
 
-    cam.capture(function (success) {
+    times(6, cam.capture.bind(cam), function () {
         var rgb = cam.toRGB();
         var img = new png.Png(Buffer(rgb), cam.width, cam.height, "rgb");
-
         img.encode(function (buf) {
             callback(null, buf);
         });
+        cam.stop();
     });
 };
 
