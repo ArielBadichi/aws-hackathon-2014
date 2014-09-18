@@ -45,38 +45,38 @@ function createUser(username) {
 //            });
         });
 }
-    function deleteuser(userNmae) {
+function deleteuser(userNmae) {
 
-    }
-
-
-    function getuserbottle() {
-
-    }
-
-    function getUser(userName) {
-
-    }
+}
 
 
-    function listUsers(callback) {
-        var params = {
-            TableName: 'users'}
-        dynamodb.scan(params, function (err, data) {
-            console.log(data.Items);
-            if (err) callback(console.log(err, err.stack)); // an error occurred
-            else     {
-                callback(null, console.log(data));
-            }           // successful response
-        });
-        //}
+function getuserbottle() {
+
+}
+
+function getUser(userName) {
+
+}
 
 
-    }
+function listUsers(callback) {
+    var params = {
+        TableName: 'users'}
+    dynamodb.scan(params, function (err, data) {
+        console.log(data.Items);
+        if (err) callback(console.log(err, err.stack)); // an error occurred
+        else     {
+            callback(null, console.log(data));
+        }           // successful response
+    });
+    //}
 
-    function updateUser(username, userdate) {
 
-    }
+}
+
+function updateUser(username, userdate) {
+
+}
 
 function createSession(sessionId, stationNumber, numOfBott, startTime, endTime) {
     dynamodb.putItem(
@@ -94,8 +94,9 @@ function createSession(sessionId, stationNumber, numOfBott, startTime, endTime) 
             console.log(result);
         });
 }
+
 function listSessions(callback) {
-    //function callback() {
+
     var params = {
         TableName: 'userSessions'}
     dynamodb.scan(params, function (err, data) {
@@ -105,8 +106,6 @@ function listSessions(callback) {
             callback(null, console.log(data));
         }           // successful response
     });
-    //}
-
 }
 
 function getSessions(sessionIds) {
@@ -119,9 +118,9 @@ function getSessions(sessionIds) {
 
 //createSession("44","55","6","22:22", "22:55")
 
-listUsers(function(err, res){
-    console.log(err, res);
-})
+//listUsers(function(err, res){
+//    console.log(err, res);
+//})
 
 (function(){
     var dbaccess = {};
