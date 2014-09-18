@@ -3,7 +3,9 @@
  */
 
 var restify = require('restify');
-var api = require('./api');
+var api = require('./api'),
+    usersApi = api.users,
+    sessionApi = api.sessions;
 
 function users(req, res, next) {
     res.send('hello ' + req.params.name);
@@ -15,10 +17,16 @@ var server = restify.createServer(
     name:'Recyco'
     }
 );
-server.get('/users/', api.listUsers);
-server.post('/users/:userName', api.addUser);
-server.put('/users/:userName', api.addUser);
-server.del('/addUser/:userName', api.addUser);
+server.get('/users/:userName', usersApi.getUsers);
+server.post('/users/:userName', usersApi.addUser);
+
+
+//TODO: Not sure if going to be implemented here
+//server.del('/users/:userName', api.addUser);
+
+//TODO: Not sure if needed
+//server.put('/users/:userName', api.addUser);
+
 
 
 server.listen(8080, function() {
