@@ -43,5 +43,5 @@ function listUsers(req, res, next) {
     api.addBottles = addBottles;
     api.listUsers = listUsers;
 
-    module.exports = api;
+
 })();
