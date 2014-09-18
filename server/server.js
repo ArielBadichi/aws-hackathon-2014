@@ -4,7 +4,7 @@
 
 var restify = require('restify');
 var api = require('./api'),
-    usersApi = api.users,
+    userApi = api.users,
     sessionApi = api.sessions;
 
 function users(req, res, next) {
@@ -17,8 +17,13 @@ var server = restify.createServer(
     name:'Recyco'
     }
 );
-server.get('/users/:userName', usersApi.getUsers);
-server.post('/users/:userName', usersApi.createUser);
+
+server.use(restify.queryParser());
+
+server.get('/users/:userName', userApi.getUsers);
+server.post('/users/:userName', userApi.createUser);
+
+server.get('/users/:userName/sessions', sessionApi.getSessions);
 
 server.get('/sessions/', sessionApi.listSessions);
 
@@ -28,8 +33,6 @@ server.get('/sessions/', sessionApi.listSessions);
 //TODO: Not sure if needed
 //server.put('/users/:userName', api.addUser);
 
-
-server.use(restify.queryParser());
 
 server.listen(8080, function() {
     console.log('%s listening at %s', server.name, server.url);
