@@ -200,7 +200,7 @@ function getSessions(sessionIds) {
 
 
 //getuserbottle("sergey")
-updateUser("sergey","6","44","21/09/2014","44")
+//updateUser("sergey","6","44","21/09/2014","44")
 //(function(){
 //    var dbaccess = {};
 //
