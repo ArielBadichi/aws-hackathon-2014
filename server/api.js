@@ -53,23 +53,35 @@ function getUsers(req, res, next) {
             next(new Error('Error listing users: ' + err.toString()));
 
         } else {
-            var users = results.Items;
             var parsedUsers = [];
-            if(_.isArray(users)) {
-                _.forEach(function (user) {
+            if(!userName) {
+                var users = results.Items;
+                _.forEach(users, function (user) {
                     var parsedUser = {
-                        "userName": user.username.S,
-                        "totalNumberofBottles": user.totalNumberofBottles.N,
-                        "currentStationNumber": user.currentSessionNumber.N,
-                        "lastRecyclingTime": user.lastRecyclingTime.S,
-                        "sessions": user.sessions.SS
-                    }
+                        "userName": user.username ? user.username.S : user.username.S,
+                        "totalNumberofBottles": user.totalNumberofBottles ? user.totalNumberofBottles.N : "0",
+                        "currentStationNumber": user.currentSessionNumber ? user.currentSessionNumber.N : "0",
+                        "lastRecyclingTime": user.lastRecyclingTime ? user.lastRecyclingTime.S : "",
+                        "sessions": user.sessions ? user.sessions.SS : []
+                    };
                     parsedUsers.push(parsedUser);
 
                 });
 
+            } else {
+                var user = results.Item;
+                console.log(results);
+                var parsedUser = {
+                    "userName": user.username ? user.username.S : user.username.S,
+                    "totalNumberofBottles": user.totalNumberofBottles ? user.totalNumberofBottles.N : "0",
+                    "currentStationNumber": user.currentSessionNumber ? user.currentSessionNumber.N : "0",
+                    "lastRecyclingTime": user.lastRecyclingTime ? user.lastRecyclingTime.S : "",
+                    "sessions": user.sessions ? user.sessions.SS : []
+                };
+                parsedUsers = parsedUser;
+
             }
-            res.send(results);
+            res.send(parsedUsers);
             next();
         }
     };

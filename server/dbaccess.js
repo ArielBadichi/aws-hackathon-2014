@@ -45,14 +45,26 @@ function getuserbottle() {
 
 }
 
-function getUser(userName) {
-
+function getUser(userName, callback) {
+    var params = {
+        TableName: 'users',
+        Key: {
+            username: {
+                S: userName
+            }
+        }
+    };
+    dynamodb.getItem(params, function(err, results) {
+        console.log(err, results);
+        callback(err, results)
+    });
 }
+
 
 
 function listUsers(callback) {
     var params = {
-        TableName: 'users'}
+        TableName: 'users'};
     dynamodb.scan(params, function (err, data) {
         console.log(err, data);
         console.log(data.Items);
@@ -119,6 +131,7 @@ function getSessions(sessionIds) {
 
     dbaccess.createUser = createUser;
     dbaccess.listUsers = listUsers;
+    dbaccess.getUser = getUser;
 
     module.exports = dbaccess;
 
