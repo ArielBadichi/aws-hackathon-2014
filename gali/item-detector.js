@@ -72,13 +72,13 @@ function detector() {
         case 0:
             if (avg >= highThreshold) {
                 state = 1;
-                emitter.emit("up");
+                emitter.emit("down");
             }
             break;
         case 1:
             if (avg <= lowThreshold) {
                 state = 0;
-                emitter.emit("down");
+                emitter.emit("up");
             }
             break;
         default:

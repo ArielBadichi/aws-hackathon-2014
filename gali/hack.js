@@ -24,7 +24,7 @@ Cylon.robot({
         sub.on("message", function(messageBuffer) {
             try {
                 var messageString = messageBuffer.toString();
-                qrMessage = JSON.parse(messageString);
+                qrMessage = messageString;
                 console.log("Got QR data: " + messageString);
             }
             catch (err) {

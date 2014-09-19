@@ -25,7 +25,7 @@ function sendData(stats) {
     console.log("Posting " + body);
 
     request.post({
-        url: 'http://192.168.11.10:8080/sessions',
+        url: 'http://rcyclo-528772216.us-west-2.elb.amazonaws.com/sessions',
         json: body
     }, function(err, response) {
         if (!err) {

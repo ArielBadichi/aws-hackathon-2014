@@ -60,3 +60,29 @@ function run(callback) {
 }
 
 async.forever(run);
+
+var uuid = require('node-uuid');
+var request = require('request');
+
+function sendData(stats) {
+    var sessionId = String(uuid.v4());
+    var stationNumber = stats.stationNumber;
+    var numberOfBott = stats.numberOfBott;
+    var startTime = stats.startTime;
+    var endTime = stats.endTime;
+
+    var body = {
+        sessionId: sessionId,
+        stationNumber: stationNumber,
+        numberOfBott: numberOfBott,
+        startTime: startTime,
+        endTime: endTime
+    };
+
+    body = JSON.stringify(body);
+
+    request.post('http://192.168.11.10:8080/sessions', {body: body})
+}
+
+
+
