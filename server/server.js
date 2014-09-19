@@ -7,10 +7,6 @@ var api = require('./api'),
     userApi = api.users,
     sessionApi = api.sessions;
 
-function users(req, res, next) {
-    res.send('hello ' + req.params.name);
-    next();
-}
 
 var server = restify.createServer(
     {
@@ -19,13 +15,17 @@ var server = restify.createServer(
 );
 
 server.use(restify.queryParser());
+server.use(restify.bodyParser({mapParams: true}));
+server.use(restify.CORS());
+
 
 server.get('/users/:userName', userApi.getUsers);
-server.post('/users/:userName', userApi.createUser);
+server.post('/users', userApi.createUser);
 
 server.get('/users/:userName/sessions', sessionApi.getSessions);
 
 server.get('/sessions/', sessionApi.listSessions);
+server.post('/sessions/', sessionApi.createSession);
 
 //TODO: Not sure if going to be implemented here
 //server.del('/users/:userName', api.addUser);
@@ -37,4 +37,3 @@ server.get('/sessions/', sessionApi.listSessions);
 server.listen(8080, function() {
     console.log('%s listening at %s', server.name, server.url);
 });
-

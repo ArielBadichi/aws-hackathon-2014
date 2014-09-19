@@ -24,7 +24,7 @@ function tableList(){
 
 }
 
-function createUser(username) {
+function createUser(username, callback) {
     dynamodb.putItem(
         {"TableName": "users",
             "Item": {
@@ -32,17 +32,8 @@ function createUser(username) {
                 "totalNumberofBottels": {"N": "0"}
             }
         }
-        , function (err, result) {
-            console.log(err);
-            console.log(result);
-//            response.on('data', function (chunk) {
-//                console.log("" + chunk);
-//            });
-//            result.on('ready', function (data) {
-//                console.log("Error:" + data.error);
-//                console.log("ConsumedCapacityUnits:" + data.ConsumedCapacityUnits);
-//                // ...
-//            });
+        , function (err, results) {
+            callback(err, results);
         });
 }
 function deleteuser(userNmae) {
@@ -63,10 +54,11 @@ function listUsers(callback) {
     var params = {
         TableName: 'users'}
     dynamodb.scan(params, function (err, data) {
+        console.log(err, data);
         console.log(data.Items);
         if (err) callback(console.log(err, err.stack)); // an error occurred
         else     {
-            callback(null, console.log(data));
+            callback(null, data);
         }           // successful response
     });
     //}
@@ -126,6 +118,7 @@ function getSessions(sessionIds) {
     var dbaccess = {};
 
     dbaccess.createUser = createUser;
+    dbaccess.listUsers = listUsers;
 
     module.exports = dbaccess;
 
