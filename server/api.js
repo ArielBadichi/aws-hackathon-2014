@@ -46,7 +46,6 @@ function removeUser(req, res, next) {
 function getUsers(req, res, next) {
     console.log("Getting users");
     var userName = req.params.userName;
-
     var userListCallback = function(err, results) {
         if(err) {
             console.log(err);
@@ -58,7 +57,7 @@ function getUsers(req, res, next) {
                 var users = results.Items;
                 _.forEach(users, function (user) {
                     var parsedUser = {
-                        "userName": user.username ? user.username.S : user.username.S,
+                        "userName": user.userName ? user.userName.S : user.userName.S,
                         "totalNumberofBottles": user.totalNumberofBottles ? user.totalNumberofBottles.N : "0",
                         "currentStationNumber": user.currentSessionNumber ? user.currentSessionNumber.N : "0",
                         "lastRecyclingTime": user.lastRecyclingTime ? user.lastRecyclingTime.S : "",
@@ -70,16 +69,13 @@ function getUsers(req, res, next) {
 
             } else {
                 var user = results.Item;
-                console.log(results);
-                var parsedUser = {
-                    "userName": user.username ? user.username.S : user.username.S,
+                parsedUsers = {
+                    "userName": user.userName ? user.userName.S : user.userName.S,
                     "totalNumberofBottles": user.totalNumberofBottles ? user.totalNumberofBottles.N : "0",
                     "currentStationNumber": user.currentSessionNumber ? user.currentSessionNumber.N : "0",
                     "lastRecyclingTime": user.lastRecyclingTime ? user.lastRecyclingTime.S : "",
                     "sessions": user.sessions ? user.sessions.SS : []
                 };
-                parsedUsers = parsedUser;
-
             }
             res.send(parsedUsers);
             next();
@@ -98,7 +94,9 @@ function getUsers(req, res, next) {
 //Sessions
 
 function createSession(req, res, next) {
-    var sessionData = req.body.sessionData;
+    console.log(req);
+    var sessionData = req.body;
+    console.log(sessionData);
 
     async.waterfall([
         function(callback) {
@@ -109,7 +107,7 @@ function createSession(req, res, next) {
 
                 } else {
                     console.log(results);
-                    callback(null);
+                    callback(null, results);
                 }
             });
         },

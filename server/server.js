@@ -20,12 +20,12 @@ server.use(restify.CORS());
 
 
 server.get('/users/:userName', userApi.getUsers);
-server.post('/users', userApi.createUser);
+server.post('/users/', userApi.createUser);
 
 server.get('/users/:userName/sessions', sessionApi.getSessions);
 
 server.get('/sessions/', sessionApi.listSessions);
-server.post('/sessions/', sessionApi.createSession);
+server.post('/sessions', sessionApi.createSession);
 
 //TODO: Not sure if going to be implemented here
 //server.del('/users/:userName', api.addUser);

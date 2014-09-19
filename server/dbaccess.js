@@ -24,18 +24,19 @@ function tableList(){
 
 }
 
-function createUser(username, callback) {
+function createUser(userName, callback) {
     dynamodb.putItem(
         {"TableName": "users",
             "Item": {
-                "username": {"S": username},
-                "totalNumberofBottels": {"N": "0"}
+                "userName": {"S": userName},
+                "totalNumberofBottles": {"N": "0"}
             }
         }
         , function (err, results) {
             callback(err, results);
         });
 }
+
 function deleteuser(userNmae) {
 
 }
@@ -49,14 +50,13 @@ function getUser(userName, callback) {
     var params = {
         TableName: 'users',
         Key: {
-            username: {
+            userName: {
                 S: userName
             }
         }
     };
     dynamodb.getItem(params, function(err, results) {
-        console.log(err, results);
-        callback(err, results)
+        callback(err, results);
     });
 }
 
@@ -65,6 +65,7 @@ function getUser(userName, callback) {
 function listUsers(callback) {
     var params = {
         TableName: 'users'};
+
     dynamodb.scan(params, function (err, data) {
         console.log(err, data);
         console.log(data.Items);
@@ -82,15 +83,16 @@ function updateUser(username, userdate) {
 
 }
 
-function createSession(sessionId, stationNumber, numOfBott, startTime, endTime) {
-    dynamodb.putItem(
-        {"TableName": "userSessions",
+function createSession(sessionData) {
+    dynamodb.putItem({
+            "TableName": "userSessions",
             "Item": {
-                "sessionId": {"S": sessionId},
-                "stationNumber": {"N": stationNumber},
-                "numOfBott": {"N": numOfBott},
-                "startTime": {"S": startTime},
-                "endTime": {"S": endTime}
+                "userName": {"S": sessionData.userName},
+                "sessionId": {"S": sessionData.sessionId},
+                "stationNumber": {"N": sessionData.stationNumber},
+                "numberOfBottles": {"N": sessionData.numberOfBottles},
+                "startTime": {"S": sessionData.startTime},
+                "endTime": {"S": sessionData.endTime}
             }
         }
         , function (err, result) {
@@ -102,7 +104,8 @@ function createSession(sessionId, stationNumber, numOfBott, startTime, endTime) 
 function listSessions(callback) {
 
     var params = {
-        TableName: 'userSessions'}
+        TableName: 'userSessions'};
+
     dynamodb.scan(params, function (err, data) {
         console.log(data.Items);
         if (err) callback(console.log(err, err.stack)); // an error occurred
@@ -132,6 +135,7 @@ function getSessions(sessionIds) {
     dbaccess.createUser = createUser;
     dbaccess.listUsers = listUsers;
     dbaccess.getUser = getUser;
+    dbaccess.createSession = createSession;
 
     module.exports = dbaccess;
 
