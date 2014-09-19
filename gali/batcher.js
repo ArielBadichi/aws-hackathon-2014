@@ -7,8 +7,14 @@ function batcher() {
     var timer = null;
     var batch = [];
     var emitter = new EventEmitter();
+    var startTime = null;
+    var endTime = null;
 
     function run(x) {
+        if (batch.length === 0) {
+            startTime = new Date();
+        }
+        endTime = new Date();
         batch.push(x);
         if (timer) {
             clearTimeout(timer);
@@ -26,6 +32,14 @@ function batcher() {
     run.on = function(event, fn) {
         emitter.on(event, fn);
         return run;
+    };
+
+    run.startTime = function() {
+        return startTime;
+    };
+
+    run.endTime = function() {
+        return endTime;
     };
 
     function flush() {
