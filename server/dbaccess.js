@@ -35,14 +35,6 @@ function createUser(username) {
         , function (err, result) {
             console.log(err);
             console.log(result);
-//            response.on('data', function (chunk) {
-//                console.log("" + chunk);
-//            });
-//            result.on('ready', function (data) {
-//                console.log("Error:" + data.error);
-//                console.log("ConsumedCapacityUnits:" + data.ConsumedCapacityUnits);
-//                // ...
-//            });
         });
 }
 function deleteuser(userNmae) {
@@ -50,7 +42,23 @@ function deleteuser(userNmae) {
 }
 
 
-function getuserbottle() {
+function getuserbottle(username) {
+    var params = {
+        Key:{
+            userName:{
+                S: userName
+            }
+        },
+        TableName: 'users',
+        AttributesToGet: [
+            'totalNumberofBottels'
+            ]
+    };
+    dynamodb.getItem(params, function(err, data) {
+        if (err) console.log(err, err.stack); // an error occurred
+        else     console.log(data);           // successful response
+    });
+
 
 }
 
@@ -74,7 +82,58 @@ function listUsers(callback) {
 
 }
 
-function updateUser(username, userdate) {
+function updateUser(userName, totalNumberofBottels, currentStationNumber, lastRecyclingTime, sessions) {
+    var params = {
+        Key:{
+            userName:{
+                S: userName
+            }
+        },
+        TableName: 'users',
+        AttributeUpdates: {
+//            userName: {
+//                Action: 'PUT',
+//                Value: {
+//                    "S": userName
+//                }
+//            },
+            totalNumberofBottels:{
+                Action: 'PUT',
+                Value: {
+                    "N": totalNumberofBottels
+                }
+            },
+             currentStationNumber: {
+                 Action: 'PUT',
+                 Value: {
+                     "N": currentStationNumber
+                 }
+             },
+              lastRecyclingTime: {
+                  Action: 'PUT',
+                  Value: {
+                      "S": lastRecyclingTime
+                  }
+              },
+                sessions: {
+                    Action: 'PUT',
+                    Value: {
+                        "SS": [
+                            sessions
+                        ]
+                    }
+                }
+
+
+
+            }
+        };
+
+
+dynamodb.updateItem(params, function(err, data) {
+    if (err) console.log(err, err.stack); // an error occurred
+    else     console.log(data);           // successful response
+});
 
 }
 
@@ -118,16 +177,14 @@ function getSessions(sessionIds) {
 
 //createSession("44","55","6","22:22", "22:55")
 
-//listUsers(function(err, res){
-//    console.log(err, res);
-//})
-
-(function(){
-    var dbaccess = {};
-
-    dbaccess.createUser = createUser;
-
-    module.exports = dbaccess;
-
-})();
+//getuserbottle("sergey")
+updateUser("sergey","6","44","21/09/2014","44")
+//(function(){
+//    var dbaccess = {};
+//
+//    dbaccess.createUser = createUser;
+//
+//    module.exports = dbaccess;
+//
+//})();
 
