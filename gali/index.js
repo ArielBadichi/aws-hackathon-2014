@@ -81,7 +81,7 @@ function sendData(stats) {
 
     body = JSON.stringify(body);
 
-    request.post('http://192.168.11.10:8080/sessions', {body: body})
+    request.post('http://rcyclo-528772216.us-west-2.elb.amazonaws.com/sessions', {body: body})
 }
 
 
