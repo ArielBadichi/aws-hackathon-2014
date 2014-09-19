@@ -50,7 +50,7 @@ Cylon.robot({
             if (qrMessage) {
                 sendToServer({
                     stationNumber: 1,
-                    numberOfBott: batch.length,
+                    numberOfBottles: batch.length,
                     startTime: batcher.startTime().toISOString(),
                     endTime: batcher.endTime().toISOString(),
                     userName: qrMessage.name
