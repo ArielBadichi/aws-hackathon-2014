@@ -5,7 +5,8 @@
 var restify = require('restify');
 var api = require('./api'),
     userApi = api.users,
-    sessionApi = api.sessions;
+    sessionApi = api.sessions,
+    statsApi = api.stats;
 
 
 var server = restify.createServer(
@@ -24,8 +25,9 @@ server.post('/users/', userApi.createUser);
 
 server.get('/users/:userName/sessions', sessionApi.getSessions);
 
-server.get('/sessions/', sessionApi.listSessions);
 server.post('/sessions', sessionApi.createSession);
+
+server.get('/leaderboard', statsApi.leaderBoard);
 
 //TODO: Not sure if going to be implemented here
 //server.del('/users/:userName', api.addUser);

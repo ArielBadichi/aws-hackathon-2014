@@ -5,7 +5,6 @@
 var db = require('./dbaccess');
 var async = require('async');
 var _ = require('lodash');
-var moment = require('moment');
 
 
 //Users
@@ -57,9 +56,9 @@ function getUsers(req, res, next) {
                 var users = results.Items;
                 _.forEach(users, function (user) {
                     var parsedUser = {
-                        "userName": user.userName ? user.userName.S : user.userName.S,
+                        "userName": user.userName ? user.userName.S : "",
                         "totalNumberofBottles": user.totalNumberofBottles ? user.totalNumberofBottles.N : "0",
-                        "currentStationNumber": user.currentSessionNumber ? user.currentSessionNumber.N : "0",
+                        "currentStationNumber": user.currentStationNumber ? user.currentStationNumber.N : "0",
                         "lastRecyclingTime": user.lastRecyclingTime ? user.lastRecyclingTime.S : "",
                         "sessions": user.sessions ? user.sessions.SS : []
                     };
@@ -70,9 +69,9 @@ function getUsers(req, res, next) {
             } else {
                 var user = results.Item;
                 parsedUsers = {
-                    "userName": user.userName ? user.userName.S : user.userName.S,
+                    "userName": user.userName ? user.userName.S : "",
                     "totalNumberofBottles": user.totalNumberofBottles ? user.totalNumberofBottles.N : "0",
-                    "currentStationNumber": user.currentSessionNumber ? user.currentSessionNumber.N : "0",
+                    "currentStationNumber": user.currentStationNumber ? user.currentStationNumber.N : "0",
                     "lastRecyclingTime": user.lastRecyclingTime ? user.lastRecyclingTime.S : "",
                     "sessions": user.sessions ? user.sessions.SS : []
                 };
@@ -122,13 +121,14 @@ function createSession(req, res, next) {
 
         },
         function(userData, callback) {
-            console.log(userData);
 
             userData.Item.sessions = userData.Item.sessions ? userData.Item.sessions : [];
-            userData.Item.sessions.SS.push(sessionData.sessionId);
-            userData.currentStationNumber = 0;
+            userData.Item.totalNumberofBottles = {"N": (parseInt(userData.Item.totalNumberofBottles.N) + parseInt(sessionData.numberOfBottles)).toString()};
+            userData.Item.sessions.SS = [sessionData.sessionId];
+            userData.Item.currentStationNumber = {"N": "0"};
+            userData.Item.lastRecyclingTime = {"S": sessionData.endTime};
 
-            db.updateUser(userData, function(err, results) {
+            db.updateUser(userData.Item, function(err, results) {
                 if(err) {
                     console.log(err);
                     callback(new Error('Error updating user data with session details: ' + err.toString()), null);
@@ -150,11 +150,6 @@ function createSession(req, res, next) {
             next();
         }
     });
-
-}
-
-function listSessions(req, res, next) {
-
 
 }
 
@@ -197,6 +192,30 @@ function getSessions(req, res, next) {
 }
 
 
+function leaderBoard(req, res, next) {
+    db.getTopUsers(function (err, results) {
+        if(err) {
+            console.log(err);
+            next(new Error('Error with getting user sessions process: ' + err.toString()));
+
+        } else {
+            var topUsers = [];
+
+
+            for(var i =0; i< 9 ; i++) {
+                var parsedUser = {
+                    "userName": results[i].userName ? results[i].userName.S : "",
+                    "totalNumberofBottles": results[i].totalNumberofBottles ? results[i].totalNumberofBottles.N : "0"
+                };
+                topUsers.push(parsedUser);
+            }
+
+            res.send(topUsers);
+            next();
+        }
+    });
+}
+
 (function(){
     var api = {};
 
@@ -210,7 +229,9 @@ function getSessions(req, res, next) {
     api.sessions = {};
     api.sessions.createSession = createSession;
     api.sessions.getSessions = getSessions;
-    api.sessions.listSessions = listSessions;
+
+    api.stats = {};
+    api.stats.leaderBoard = leaderBoard;
 
     module.exports = api;
 

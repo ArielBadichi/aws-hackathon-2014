@@ -8,22 +8,6 @@ aws.config.update({region: 'us-west-2'});
 var dynamodb = new aws.DynamoDB();
 
 
-function tableList(){
-    var params = {
-        TableName: 'users' /* required */
-    };
-    dynamodb.describeTable(params, function(err, data) {
-        if (err) {
-            console.log(err, err.stack);
-            process.exit(1);
-        } else {
-            console.log(data);
-            process.exit(0);
-        }
-    });
-
-}
-
 function createUser(userName, callback) {
     dynamodb.putItem(
         {"TableName": "users",
@@ -31,41 +15,10 @@ function createUser(userName, callback) {
                 "userName": {"S": userName},
                 "totalNumberofBottles": {"N": "0"}
             }
-        }
-
-        , function (err, result) {
-            console.log(err);
-            console.log(result);
-
-        , function (err, results) {
+        }, function (err, results) {
             callback(err, results);
 
         });
-}
-
-function deleteuser(userNmae) {
-
-}
-
-
-function getuserbottle(username) {
-    var params = {
-        Key:{
-            userName:{
-                S: userName
-            }
-        },
-        TableName: 'users',
-        AttributesToGet: [
-            'totalNumberofBottels'
-            ]
-    };
-    dynamodb.getItem(params, function(err, data) {
-        if (err) console.log(err, err.stack); // an error occurred
-        else     console.log(data);           // successful response
-    });
-
-
 }
 
 function getUser(userName, callback) {
@@ -86,73 +39,49 @@ function getUser(userName, callback) {
 
 function listUsers(callback) {
     var params = {
-        TableName: 'users'};
+        TableName: 'users'
+    };
 
     dynamodb.scan(params, function (err, data) {
-        if (err) callback(console.log(err, err.stack)); // an error occurred
-        else     {
+        if (err) {
+            callback(err, null);
+        } else {
             callback(null, data);
-        }           // successful response
+        }
     });
-    //}
-
-
 }
 
-function updateUser(userName, totalNumberofBottels, currentStationNumber, lastRecyclingTime, sessions) {
+function updateUser(userData, callback) {
     var params = {
         Key:{
-            userName:{
-                S: userName
-            }
+            userName: userData.userName
         },
         TableName: 'users',
         AttributeUpdates: {
-//            userName: {
-//                Action: 'PUT',
-//                Value: {
-//                    "S": userName
-//                }
-//            },
-            totalNumberofBottels:{
+            totalNumberofBottles:{
                 Action: 'PUT',
-                Value: {
-                    "N": totalNumberofBottels
-                }
+                Value: userData.totalNumberofBottles
             },
              currentStationNumber: {
                  Action: 'PUT',
-                 Value: {
-                     "N": currentStationNumber
-                 }
+                 Value: userData.currentStationNumber
              },
               lastRecyclingTime: {
                   Action: 'PUT',
-                  Value: {
-                      "S": lastRecyclingTime
-                  }
+                  Value: userData.lastRecyclingTime
               },
                 sessions: {
                     Action: 'PUT',
-                    Value: {
-                        "SS": [
-                            sessions
-                        ]
+                    Value: userData.sessions
                     }
                 }
-
-
-
-            }
-        };
-
-
-dynamodb.updateItem(params, function(err, data) {
-    if (err) console.log(err, err.stack); // an error occurred
-    else     console.log(data);           // successful response
-});
-
+            };
+    console.log(userData);
+    dynamodb.updateItem(params, callback);
 }
+
+
+
 
 function createSession(sessionData, callback) {
     dynamodb.putItem({
@@ -171,45 +100,22 @@ function createSession(sessionData, callback) {
         });
 }
 
-function listSessions(callback) {
+function getTopUsers(callback) {
+    listUsers(function(err, results) {
+        if (err) {
+            callback(err, null);
+        } else {
+            var data = results.Items;
+            data.sort(function(a, b) {
+                return a.totalNumberofBottles.N > b.totalNumberofBottles.N ? -1 : 1;
+            });
 
-    var params = {
-        TableName: 'userSessions'};
+            callback(null, data);
+        }
 
-    dynamodb.scan(params, function (err, data) {
-        console.log(data.Items);
-        if (err) callback(console.log(err, err.stack)); // an error occurred
-        else     {
-            callback(null, console.log(data));
-        }           // successful response
     });
-}
-
-function getSessions(sessionIds) {
 
 }
-
-
-
-//createUser("pavel")
-
-//createSession("44","55","6","22:22", "22:55")
-
-
-//getuserbottle("sergey")
-//updateUser("sergey","6","44","21/09/2014","44")
-//(function(){
-//    var dbaccess = {};
-//
-//    dbaccess.createUser = createUser;
-//
-//    module.exports = dbaccess;
-//
-//})();
-
-//listUsers(function(err, res){
-//    console.log(err, res);
-//})
 
 (function(){
     var dbaccess = {};
@@ -218,9 +124,9 @@ function getSessions(sessionIds) {
     dbaccess.listUsers = listUsers;
     dbaccess.getUser = getUser;
     dbaccess.createSession = createSession;
+    dbaccess.updateUser = updateUser;
+    dbaccess.getTopUsers = getTopUsers;
 
     module.exports = dbaccess;
 
 })();
-
-
