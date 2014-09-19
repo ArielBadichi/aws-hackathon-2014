@@ -67,8 +67,6 @@ function listUsers(callback) {
         TableName: 'users'};
 
     dynamodb.scan(params, function (err, data) {
-        console.log(err, data);
-        console.log(data.Items);
         if (err) callback(console.log(err, err.stack)); // an error occurred
         else     {
             callback(null, data);
@@ -83,7 +81,7 @@ function updateUser(username, userdate) {
 
 }
 
-function createSession(sessionData) {
+function createSession(sessionData, callback) {
     dynamodb.putItem({
             "TableName": "userSessions",
             "Item": {
@@ -96,8 +94,7 @@ function createSession(sessionData) {
             }
         }
         , function (err, result) {
-            console.log(err);
-            console.log(result);
+            callback(err, result);
         });
 }
 

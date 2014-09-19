@@ -94,9 +94,7 @@ function getUsers(req, res, next) {
 //Sessions
 
 function createSession(req, res, next) {
-    console.log(req);
     var sessionData = req.body;
-    console.log(sessionData);
 
     async.waterfall([
         function(callback) {
@@ -106,19 +104,17 @@ function createSession(req, res, next) {
                     callback(new Error('Error Creating Session: ' + err.toString()), null);
 
                 } else {
-                    console.log(results);
-                    callback(null, results);
+                    callback(null);
                 }
             });
         },
         function(callback) {
+            var userName = sessionData.userName;
 
-            var stationNumber = sessionData.stationNumber;
-
-            db.findUser(stationNumber, function(err, results) {
+            db.getUser(userName, function(err, results) {
                 if(err) {
                     console.log(err);
-                    callback(new Error('Error finding user by station number: ' + err.toString()), null);
+                    callback(new Error('Error getting user: ' + err.toString()), null);
                 } else {
                     callback(null, results);
                 }
@@ -126,14 +122,18 @@ function createSession(req, res, next) {
 
         },
         function(userData, callback) {
-            userData.sessions.push(sessionData.sessionId);
-            userData.currentSessionNumber = 0;
+            console.log(userData);
+
+            userData.Item.sessions = userData.Item.sessions ? userData.Item.sessions : [];
+            userData.Item.sessions.SS.push(sessionData.sessionId);
+            userData.currentStationNumber = 0;
 
             db.updateUser(userData, function(err, results) {
                 if(err) {
                     console.log(err);
                     callback(new Error('Error updating user data with session details: ' + err.toString()), null);
                 } else {
+                    console.log("OK");
                     callback(null, results);
                 }
             });
@@ -145,7 +145,8 @@ function createSession(req, res, next) {
 
         } else {
             console.log(results);
-            res.send(results);
+            //res.send(results);
+            res.send("OK");
             next();
         }
     });
