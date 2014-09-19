@@ -4,18 +4,21 @@
 
 var db = require('./dbaccess');
 var async = require('async');
+var _ = require('lodash');
+var moment = require('moment');
 
 
 //Users
 
 function createUser(req, res, next){
+    console.log("Creating user");
     var userName = req.params.userName;
+
     db.createUser(userName, function(err, results) {
         if(err) {
             console.log(err);
             next(new Error('Error Adding User: ' + err.toString()));
         } else {
-            console.log(results);
             res.send(results);
             next();
         }
@@ -24,6 +27,7 @@ function createUser(req, res, next){
 }
 
 function removeUser(req, res, next) {
+    console.log("Removing user");
     var userName = req.params.userName;
     db.removeUser(userName, function(err, results) {
         if(err) {
@@ -40,16 +44,40 @@ function removeUser(req, res, next) {
 
 
 function getUsers(req, res, next) {
+    console.log("Getting users");
     var userName = req.params.userName;
-
     var userListCallback = function(err, results) {
         if(err) {
             console.log(err);
             next(new Error('Error listing users: ' + err.toString()));
 
         } else {
-            console.log(results);
-            res.send(results);
+            var parsedUsers = [];
+            if(!userName) {
+                var users = results.Items;
+                _.forEach(users, function (user) {
+                    var parsedUser = {
+                        "userName": user.userName ? user.userName.S : user.userName.S,
+                        "totalNumberofBottles": user.totalNumberofBottles ? user.totalNumberofBottles.N : "0",
+                        "currentStationNumber": user.currentSessionNumber ? user.currentSessionNumber.N : "0",
+                        "lastRecyclingTime": user.lastRecyclingTime ? user.lastRecyclingTime.S : "",
+                        "sessions": user.sessions ? user.sessions.SS : []
+                    };
+                    parsedUsers.push(parsedUser);
+
+                });
+
+            } else {
+                var user = results.Item;
+                parsedUsers = {
+                    "userName": user.userName ? user.userName.S : user.userName.S,
+                    "totalNumberofBottles": user.totalNumberofBottles ? user.totalNumberofBottles.N : "0",
+                    "currentStationNumber": user.currentSessionNumber ? user.currentSessionNumber.N : "0",
+                    "lastRecyclingTime": user.lastRecyclingTime ? user.lastRecyclingTime.S : "",
+                    "sessions": user.sessions ? user.sessions.SS : []
+                };
+            }
+            res.send(parsedUsers);
             next();
         }
     };
@@ -57,16 +85,18 @@ function getUsers(req, res, next) {
     if(userName) {
         db.getUser(userName, userListCallback);
     } else {
+        console.log("Getting all users");
         db.listUsers(userListCallback);
     }
-
 }
 
 
 //Sessions
 
 function createSession(req, res, next) {
-    var sessionData = req.params.sessionData;
+    console.log(req);
+    var sessionData = req.body;
+    console.log(sessionData);
 
     async.waterfall([
         function(callback) {
@@ -77,7 +107,7 @@ function createSession(req, res, next) {
 
                 } else {
                     console.log(results);
-                    callback(null);
+                    callback(null, results);
                 }
             });
         },
@@ -96,7 +126,7 @@ function createSession(req, res, next) {
 
         },
         function(userData, callback) {
-            userData.sessions.append(sessionData.sessionId);
+            userData.sessions.push(sessionData.sessionId);
             userData.currentSessionNumber = 0;
 
             db.updateUser(userData, function(err, results) {
