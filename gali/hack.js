@@ -14,6 +14,10 @@ Cylon.robot({
         name: "led",
         driver: "led",
         pin: 7
+    }, {
+        name: "board",
+        driver: "led",
+        pin: 2
     }],
 
     work: function(my) {
@@ -25,7 +29,7 @@ Cylon.robot({
             try {
                 var messageString = messageBuffer.toString();
                 qrMessage = messageString;
-                console.log("Got QR data: " + messageString);
+                console.log("[w] Welcome: " + messageString);
             }
             catch (err) {
                 console.log("Error in QR handler: " + err);
@@ -36,14 +40,16 @@ Cylon.robot({
         my.led.turnOff();
 
         detector.on("up", function() {
-            console.log("Item (" + detector.currentValue() + ")");
+            console.log("[+] Bottle inserted (" + detector.currentValue() + ")");
             my.led.turnOn();
+            my.board.turnOn();
             batcher(process.hrtime());
         });
 
         detector.on("down", function() {
-            console.log("No item (" + detector.currentValue() + ")");
+            console.log("[-] Bottle removed (" + detector.currentValue() + ")");
             my.led.turnOff();
+            my.board.turnOff();
         });
 
         batcher.on("batch", function(batch) {
@@ -53,11 +59,11 @@ Cylon.robot({
                     numberOfBottles: batch.length,
                     startTime: batcher.startTime().toISOString(),
                     endTime: batcher.endTime().toISOString(),
-                    userName: qrMessage.name
+                    userName: qrMessage
                 });
                 qrMessage = null;
             }
-            console.log("Batch: " + JSON.stringify(batch));
+            console.log("[s] Sending data to AWS cloud: " + JSON.stringify(batch));
         });
 
         every(10, function() {
