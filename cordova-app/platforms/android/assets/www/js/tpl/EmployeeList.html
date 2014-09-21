@@ -1,0 +1,9 @@
+<h1 style="text-align: center">Score Board</h1>
+<ul class="topcoat-list list">
+<% _.each(employees, function(employee) { %>
+    <li class="topcoat-list__item">
+        <p><%= employee.userName %></p>
+        <span class="count"><%= employee.totalNumberofBottles %></span>
+    </li>
+<% }); %>
+</ul>
